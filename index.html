@@ -19,9 +19,10 @@
         .number-line {
             position: relative;
             width: 600px;
-            height: 150px;
+            height: 200px;
             border-top: 2px solid black;
-            margin-top: 50px;
+            margin-top: 100px;
+            overflow: visible;
         }
 
         .number-line .tick {
@@ -66,6 +67,8 @@
             transform: translateX(-50%);
         }
     </style>
+    <!-- Add html2canvas library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 
 <body>
@@ -94,6 +97,11 @@
         <input type="checkbox" id="toggleSemicircles" checked>
     </div>
 
+    <!-- Add Export Button -->
+    <div style="position: absolute; top: 140px; left: 50%; transform: translateX(-50%);">
+        <button id="exportButton">Export as Image</button>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const lowInput = document.getElementById('low');
@@ -104,6 +112,7 @@
             const updateButton2 = document.getElementById('updateButton2');
             const toggleSemicircles = document.getElementById('toggleSemicircles');
             const numberLine = document.querySelector('.number-line');
+            const exportButton = document.getElementById('exportButton');
 
             const renderNumberLine = () => {
                 let low = parseInt(lowInput.value);
@@ -186,6 +195,23 @@
             updateButton.addEventListener('click', renderNumberLine);
             updateButton2.addEventListener('click', renderNumberLine);
             toggleSemicircles.addEventListener('change', renderNumberLine);
+
+            // Export as Image functionality
+            exportButton.addEventListener('click', () => {
+                html2canvas(numberLine, { y: -100, x: -10, width: numberLine.offsetWidth + 50 }).then(canvas => {
+                    const shiftedCanvas = document.createElement('canvas');
+                    shiftedCanvas.width = canvas.width + 50;
+                    shiftedCanvas.height = canvas.height + 50; // Increase height to capture the entire number line
+                    const ctx = shiftedCanvas.getContext('2d');
+                    ctx.drawImage(canvas, 0, 0); // Draw at the top of the new canvas
+                    const link = document.createElement('a');
+                    link.href = shiftedCanvas.toDataURL('image/png');
+                    link.download = 'number_line.png';
+                    link.click();
+                }).catch(err => {
+                    console.error('Error exporting image:', err);
+                });
+            });
 
             // Initial render
             renderNumberLine();
