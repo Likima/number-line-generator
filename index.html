@@ -53,6 +53,18 @@
             background-color: transparent;
             top: -35px;
         }
+
+        /* Add star styles */
+        .star {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-bottom: 10px solid gold;
+            top: -25px;
+            transform: translateX(-50%);
+        }
     </style>
 </head>
 
@@ -98,8 +110,8 @@
                 let high = parseInt(highInput.value);
                 const range = high - low;
 
-                // Clear existing ticks, semicircles, and arrows
-                numberLine.querySelectorAll('.tick, .semicircle, .arrow').forEach(el => el.remove());
+                // Clear existing ticks, semicircles, arrows, and stars
+                numberLine.querySelectorAll('.tick, .semicircle, .arrow, .star').forEach(el => el.remove());
 
                 for (let i = 0; i <= range; i++) {
                     const tick = document.createElement('div');
@@ -146,8 +158,23 @@
                     }
                 }
 
-                // Arrow rendering remains unchanged
-                // ...
+                // Add stars for 'from' and 'to'
+                const addStar = (value) => {
+                    if (value < low || value > high) return;
+                    const star = document.createElement('div');
+                    star.classList.add('star');
+                    const position = ((value - low) / range) * 100;
+                    star.style.left = `${position}%`;
+                    star.style.position = 'absolute';
+                    star.style.top = '-10px';
+                    star.style.transform = 'translateX(-50%)';
+                    numberLine.appendChild(star);
+                };
+
+                const fromValue = parseInt(fromInput.value);
+                const toValue = parseInt(toInput.value);
+                addStar(fromValue);
+                addStar(toValue);
             };
 
             updateButton.addEventListener('click', renderNumberLine);
