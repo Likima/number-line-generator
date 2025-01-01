@@ -199,10 +199,10 @@
 
             // Export as Image functionality
             exportButton.addEventListener('click', () => {
-                html2canvas(numberLine, { y: -100, x: -10, width: numberLine.offsetWidth + 50 }).then(canvas => {
+                html2canvas(numberLine, { y: -60, x: -10, width: numberLine.offsetWidth + 50, height: numberLine.offsetHeight - 100 }).then(canvas => {
                     const shiftedCanvas = document.createElement('canvas');
                     shiftedCanvas.width = canvas.width + 50;
-                    shiftedCanvas.height = canvas.height + 50; // Increase height to capture the entire number line
+                    shiftedCanvas.height = canvas.height; // Increase height to capture the entire number line
                     const ctx = shiftedCanvas.getContext('2d');
                     ctx.drawImage(canvas, 0, 0); // Draw at the top of the new canvas
                     const link = document.createElement('a');
