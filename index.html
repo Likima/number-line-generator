@@ -157,19 +157,25 @@
                         numberLine.appendChild(arrow);
                     }
                 }
+                // Add stars for 'from' and 'to' only if "Show Jumps" is not checked
+                if (!toggleSemicircles.checked) {
+                    const addStar = (value) => {
+                        if (value < low || value > high) return;
+                        const star = document.createElement('div');
+                        star.classList.add('star');
+                        const position = ((value - low) / range) * 100;
+                        star.style.left = `${position}%`;
+                        star.style.position = 'absolute';
+                        star.style.top = '-10px';
+                        star.style.transform = 'translateX(-50%)';
+                        numberLine.appendChild(star);
+                    };
 
-                // Add stars for 'from' and 'to'
-                const addStar = (value) => {
-                    if (value < low || value > high) return;
-                    const star = document.createElement('div');
-                    star.classList.add('star');
-                    const position = ((value - low) / range) * 100;
-                    star.style.left = `${position}%`;
-                    star.style.position = 'absolute';
-                    star.style.top = '-10px';
-                    star.style.transform = 'translateX(-50%)';
-                    numberLine.appendChild(star);
-                };
+                    const fromValue = parseInt(fromInput.value);
+                    const toValue = parseInt(toInput.value);
+                    addStar(fromValue);
+                    addStar(toValue);
+                }
 
                 const fromValue = parseInt(fromInput.value);
                 const toValue = parseInt(toInput.value);
