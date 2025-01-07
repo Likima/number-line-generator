@@ -66,6 +66,17 @@
             top: -25px;
             transform: translateX(-50%);
         }
+
+        /* Add error styles */
+        .error {
+            position: absolute;
+            left: -20px;
+            top: -10px;
+            width: 10px;
+            height: 10px;
+            background-color: red;
+            border-radius: 50%;
+        }
     </style>
     <!-- Add html2canvas library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -97,8 +108,14 @@
         <input type="checkbox" id="toggleSemicircles" checked>
     </div>
 
-    <!-- Add Export Button -->
+    <!-- Add Minus Question Checkbox -->
     <div style="position: absolute; top: 140px; left: 50%; transform: translateX(-50%);">
+        <label for="isMinus">Minus Question:</label>
+        <input type="checkbox" id="isMinus">
+    </div>
+
+    <!-- Add Export Button -->
+    <div style="position: absolute; top: 180px; left: 50%; transform: translateX(-50%);">
         <button id="exportButton">Export as Image</button>
     </div>
 
@@ -111,6 +128,7 @@
             const updateButton = document.getElementById('updateButton');
             const updateButton2 = document.getElementById('updateButton2');
             const toggleSemicircles = document.getElementById('toggleSemicircles');
+            const isMinus = document.getElementById('isMinus');
             const numberLine = document.querySelector('.number-line');
             const exportButton = document.getElementById('exportButton');
 
@@ -119,8 +137,8 @@
                 let high = parseInt(highInput.value);
                 const range = high - low;
 
-                // Clear existing ticks, semicircles, arrows, and stars
-                numberLine.querySelectorAll('.tick, .semicircle, .arrow, .star').forEach(el => el.remove());
+                // Clear existing ticks, semicircles, arrows, stars, and errors
+                numberLine.querySelectorAll('.tick, .semicircle, .arrow, .star, .error').forEach(el => el.remove());
 
                 for (let i = 0; i <= range; i++) {
                     const tick = document.createElement('div');
@@ -152,10 +170,16 @@
                         numberLine.appendChild(semicircle);
                     });
                     if (destinations.length > 0) {
-                        const lastDest = destinations[destinations.length - 1];
                         const arrow = document.createElement('div');
                         arrow.classList.add('arrow');
-                        const position = ((lastDest - low + 1) / range) * 100;
+                        let position;
+                        if (isMinus.checked) {
+                            const firstDest = destinations[0];
+                            position = ((firstDest - low) / range) * 100;
+                        } else {
+                            const lastDest = destinations[destinations.length - 1];
+                            position = ((lastDest - low + 1) / range) * 100;
+                        }
                         arrow.style.left = `${position - 1}%`;
                         arrow.style.position = 'absolute';
                         arrow.style.top = '-10px';
@@ -191,20 +215,28 @@
                 const toValue = parseInt(toInput.value);
                 addStar(fromValue);
                 addStar(toValue);
+
+                // Check for minus question
+                if (isMinus.checked) {
+                    const error = document.createElement('div');
+                    error.classList.add('error');
+                    numberLine.appendChild(error);
+                }
             };
 
             updateButton.addEventListener('click', renderNumberLine);
             updateButton2.addEventListener('click', renderNumberLine);
             toggleSemicircles.addEventListener('change', renderNumberLine);
+            isMinus.addEventListener('change', renderNumberLine);
 
             // Export as Image functionality
             exportButton.addEventListener('click', () => {
                 html2canvas(numberLine, { y: -60, x: -10, width: numberLine.offsetWidth + 50, height: numberLine.offsetHeight - 100 }).then(canvas => {
                     const shiftedCanvas = document.createElement('canvas');
                     shiftedCanvas.width = canvas.width + 50;
-                    shiftedCanvas.height = canvas.height; // Increase height to capture the entire number line
+                    shiftedCanvas.height = canvas.height;
                     const ctx = shiftedCanvas.getContext('2d');
-                    ctx.drawImage(canvas, 0, 0); // Draw at the top of the new canvas
+                    ctx.drawImage(canvas, 0, 0);
                     const link = document.createElement('a');
                     link.href = shiftedCanvas.toDataURL('image/png');
                     link.download = 'number_line.png';
